@@ -6,6 +6,7 @@ var connection = mysql.createPool({
 	user: process.env.MYSQL_USER,
 	password: process.env.MYSQL_PASSWORD || "",
 	database: process.env.MYSQL_DATABASE,
+	port: parseInt(process.env.MYSQL_DATABASE, 10) || 3306,
 });
 
 function execute(queryString) {
