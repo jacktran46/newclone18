@@ -1,5 +1,7 @@
 import mysql from "mysql";
 
+let initialized = false;
+
 var connection = mysql.createConnection({
 	host: process.env.MYSQL_HOST,
 	user: process.env.MYSQL_USER,
@@ -7,7 +9,10 @@ var connection = mysql.createConnection({
 	database: process.env.MYSQL_DATABASE,
 });
 
-connection.connect();
+if (!initialized) {
+	connection.connect();
+	initialized = true;
+}
 
 function execute(queryString) {
 	return new Promise((resolve, reject) => {
