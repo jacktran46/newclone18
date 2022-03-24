@@ -114,7 +114,7 @@ export async function getServerSideProps(context) {
 	return {
 		props: {
 			post: JSON.stringify(post),
-			postImage: postImageData[0].guid,
+			postImage: postImageData.length === 1 ? postImageData[0].guid : "",
 		},
 	};
 }
