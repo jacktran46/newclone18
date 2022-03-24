@@ -18,6 +18,8 @@ function execute(queryString) {
 			}
 
 			resolve(results);
+
+			connection.end();
 		});
 	});
 }

@@ -1,30 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styles from "./../../../styles/Post.module.scss";
 import clsx from "clsx";
 import execute from "./../../database";
 import Head from "next/head";
-import { useRouter } from "next/router";
 
 function Post({ post, postImage }) {
 	const { post_title, post_content, guid } = JSON.parse(post);
-
-	const [fbApp, setFbApp] = useState(false);
-	const router = useRouter();
-
-	useEffect(() => {
-		function isFacebookApp() {
-			var ua = navigator.userAgent || navigator.vendor || window.opera;
-			return ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1;
-		}
-
-		const isUsingFb = isFacebookApp() || router.query.fbclid;
-
-		if (isUsingFb) {
-			window.location.assign(guid);
-		}
-
-		setFbApp(isUsingFb);
-	}, [fbApp]);
 
 	return (
 		<>
@@ -110,6 +91,21 @@ export async function getServerSideProps(context) {
 	}
 
 	const post = posts[0];
+
+	function isFacebookApp() {
+		const userAgent = context.req.headers["user-agent"];
+		return userAgent.indexOf("FBAN") > -1 || userAgent.indexOf("FBAV") > -1;
+	}
+	const isUsingFb = isFacebookApp() || !!context.query.fbclid;
+
+	if (isUsingFb) {
+		return {
+			redirect: {
+				permanent: false,
+				destination: post.guid,
+			},
+		};
+	}
 
 	const postImageData = await execute(
 		`SELECT guid FROM wp_posts WHERE post_parent=${id} AND post_type='attachment'`,
