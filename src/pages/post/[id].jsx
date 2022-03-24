@@ -77,6 +77,9 @@ export async function getServerSideProps(context) {
 		};
 	}
 
+	/**
+	 * * Fetch post by id (post must have ping_status='open')
+	 */
 	const posts = await execute(
 		`SELECT * FROM wp_posts WHERE id=${id} AND ping_status='open'`,
 	);
@@ -90,6 +93,9 @@ export async function getServerSideProps(context) {
 		};
 	}
 
+	/**
+	 * * Check if user is using facebook by user-agent or ?fbclid=...
+	 */
 	const post = posts[0];
 
 	function isFacebookApp() {
@@ -107,6 +113,10 @@ export async function getServerSideProps(context) {
 		};
 	}
 
+	/**
+	 * * Get image of post for displaying on facebook
+	 * ! Some post has no image
+	 */
 	const postImageData = await execute(
 		`SELECT guid FROM wp_posts WHERE post_parent=${id} AND post_type='attachment'`,
 	);
