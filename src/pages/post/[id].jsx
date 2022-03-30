@@ -117,14 +117,28 @@ export async function getServerSideProps(context) {
 	 * * Get image of post for displaying on facebook
 	 * ! Some post has no image
 	 */
-	const postImageData = await execute(
+	let postImageData = await execute(
 		`SELECT guid FROM wp_posts WHERE post_parent=${id} AND post_type='attachment'`,
 	);
+
+	/**
+	 * * If no post's image, try to fetch thumbnail instead
+	 */
+	if (postImageData.length === 0) {
+		const thumbnail = await execute(`
+      SELECT * FROM wp_postmeta AS postmeta
+      INNER JOIN wp_posts AS posts ON postmeta.post_id = posts.ID
+      INNER JOIN wp_posts AS posts2 ON postmeta.meta_value = posts2.ID
+      WHERE posts.ID = ${id} AND postmeta.meta_key = '_thumbnail_id'
+    `);
+
+		postImageData = thumbnail;
+	}
 
 	return {
 		props: {
 			post: JSON.stringify(post),
-			postImage: postImageData.length === 1 ? postImageData[0].guid : "",
+			postImage: postImageData.length !== 0 ? postImageData[0].guid : "",
 		},
 	};
 }
