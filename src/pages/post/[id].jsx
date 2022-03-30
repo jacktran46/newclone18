@@ -7,6 +7,8 @@ import Head from "next/head";
 function Post({ post, postImage }) {
 	const { post_title, post_content, guid } = JSON.parse(post);
 
+	console.log(postImage);
+
 	return (
 		<>
 			<Head>
@@ -133,6 +135,19 @@ export async function getServerSideProps(context) {
     `);
 
 		postImageData = thumbnail;
+
+		/**
+		 * * If no thumbnail, try to fetch first image of post
+		 */
+		if (thumbnail.length === 0) {
+			const regex = /<img\s[^>]*?src\s*=\s*['\"]([^'\"]*?)['\"][^>]*?>/;
+
+			const firstImage = post.post_content.match(regex);
+
+			if (firstImage && firstImage[1]) {
+				postImageData = [{ guid: firstImage[1] }];
+			}
+		}
 	}
 
 	return {
