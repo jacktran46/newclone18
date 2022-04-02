@@ -7,8 +7,6 @@ import Head from "next/head";
 function Post({ post, postImage }) {
 	const { post_title, post_content, guid } = JSON.parse(post);
 
-	console.log(postImage);
-
 	return (
 		<>
 			<Head>
@@ -115,40 +113,40 @@ export async function getServerSideProps(context) {
 		};
 	}
 
-	/**
-	 * * Get image of post for displaying on facebook
-	 * ! Some post has no image
-	 */
-	let postImageData = await execute(
-		`SELECT guid FROM wp_posts WHERE post_parent=${id} AND post_type='attachment'`,
-	);
+	// /**
+	//  * * Get image of post for displaying on facebook
+	//  * ! Some post has no image
+	//  */
+	// let postImageData = await execute(
+	// 	`SELECT guid FROM wp_posts WHERE post_parent=${id} AND post_type='attachment'`,
+	// );
 
 	/**
 	 * * If no post's image, try to fetch thumbnail instead
 	 */
-	if (postImageData.length === 0) {
-		const thumbnail = await execute(`
+	// if (postImageData.length === 0) {
+	const thumbnail = await execute(`
       SELECT * FROM wp_postmeta AS postmeta
       INNER JOIN wp_posts AS posts ON postmeta.post_id = posts.ID
       INNER JOIN wp_posts AS posts2 ON postmeta.meta_value = posts2.ID
       WHERE posts.ID = ${id} AND postmeta.meta_key = '_thumbnail_id'
     `);
 
-		postImageData = thumbnail;
+	let postImageData = thumbnail;
 
-		/**
-		 * * If no thumbnail, try to fetch first image of post
-		 */
-		if (thumbnail.length === 0) {
-			const regex = /<img\s[^>]*?src\s*=\s*['\"]([^'\"]*?)['\"][^>]*?>/;
+	/**
+	 * * If no thumbnail, try to fetch first image of post
+	 */
+	if (thumbnail.length === 0) {
+		const regex = /<img\s[^>]*?src\s*=\s*['\"]([^'\"]*?)['\"][^>]*?>/;
 
-			const firstImage = post.post_content.match(regex);
+		const firstImage = post.post_content.match(regex);
 
-			if (firstImage && firstImage[1]) {
-				postImageData = [{ guid: firstImage[1] }];
-			}
+		if (firstImage && firstImage[1]) {
+			postImageData = [{ guid: firstImage[1] }];
 		}
 	}
+	// }
 
 	return {
 		props: {
