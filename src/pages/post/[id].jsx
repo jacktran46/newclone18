@@ -77,11 +77,13 @@ export async function getServerSideProps(context) {
 		};
 	}
 
+	const tablePrefix = process.env.MYSQL_PREFIX || "wp";
+
 	/**
 	 * * Fetch post by id (post must have ping_status='open')
 	 */
 	const posts = await execute(
-		`SELECT * FROM wp_posts WHERE id=${id} AND ping_status='open'`,
+		`SELECT * FROM ${tablePrefix}_posts WHERE id=${id} AND ping_status='open'`,
 	);
 
 	if (posts.length === 0) {
@@ -126,9 +128,9 @@ export async function getServerSideProps(context) {
 	 */
 	// if (postImageData.length === 0) {
 	const thumbnail = await execute(`
-      SELECT * FROM wp_postmeta AS postmeta
-      INNER JOIN wp_posts AS posts ON postmeta.post_id = posts.ID
-      INNER JOIN wp_posts AS posts2 ON postmeta.meta_value = posts2.ID
+      SELECT * FROM ${tablePrefix}_postmeta AS postmeta
+      INNER JOIN ${tablePrefix}_posts AS posts ON postmeta.post_id = posts.ID
+      INNER JOIN ${tablePrefix}_posts AS posts2 ON postmeta.meta_value = posts2.ID
       WHERE posts.ID = ${id} AND postmeta.meta_key = '_thumbnail_id'
     `);
 
